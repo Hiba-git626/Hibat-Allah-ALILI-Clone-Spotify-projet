@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0d0e11" />
+    <meta name="description" content="Une expérience musicale conçue avec Vue.js." />
+    <title>sonora — votre espace musical</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./src/styles.css" />
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js" defer></script>
+    <script src="./src/app.js" defer></script>
+  </head>
+  <body>
+    <div id="app" v-cloak>
+      <div class="app-shell">
+        <aside class="sidebar">
+          <a class="brand" href="#" @click.prevent="selectView('home')" aria-label="Sonora, accueil">
+            <span class="brand-mark"><i></i><i></i><i></i></span>
+            <span>sonora<span class="brand-dot">.</span></span>
+          </a>
+
+          <nav class="main-nav" aria-label="Navigation principale">
+            <button :class="['nav-item', { active: view === 'home' }]" @click="selectView('home')">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z" /></svg>
+              <span>Accueil</span>
+            </button>
+            <button :class="['nav-item', { active: view === 'explore' }]" @click="selectView('explore')">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m16 16 5 5M9 11l1.5-2 2 3 1.5-2" /></svg>
+              <span>Explorer</span>
+            </button>
+            <button :class="['nav-item', { active: view === 'favorites' }]" @click="selectView('favorites')">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 8.8c0 5.1-8.8 11-8.8 11s-8.8-5.9-8.8-11A4.8 4.8 0 0 1 12 6.1a4.8 4.8 0 0 1 8.8 2.7Z" /></svg>
+              <span>Favoris</span>
+            </button>
+          </nav>
+
+          <div class="sidebar-rule"></div>
+          <div class="library-heading"><span>VOTRE BIBLIOTHÈQUE</span><button class="icon-button small-icon" title="Créer une playlist" @click="createPlaylist">＋</button></div>
+          <button class="nav-item" @click="selectView('library')">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v17H6.5A2.5 2.5 0 0 1 4 17.5zM4 7h16M8 3v4" /></svg>
+            <span>Ma collection</span>
+          </button>
+          <div class="playlist-list">
+            <button v-for="playlist in playlists" :key="playlist.name" class="playlist-link" @click="selectPlaylist(playlist.name)">
+              <span class="playlist-color" :class="playlist.color"></span>{{ playlist.name }}
+            </button>
+          </div>
+
+          <div class="sidebar-bottom">
+            <div class="upgrade-card">
+              <span class="upgrade-spark">✦</span>
+              <strong>La musique, sans limites.</strong>
+              <p>Découvrez Sonora Plus et écoutez sans interruption.</p>
+              <button @click="showToast('Sonora Plus arrive bientôt')">Découvrir Plus <span>↗</span></button>
+            </div>
+            <button class="profile-row" @click="showToast('Profil de Hibat Allah')">
+              <span class="avatar">HA</span><span><b>Hibat Allah</b><small>Compte gratuit</small></span><span class="profile-more">···</span>
+            </button>
+          </div>
+        </aside>
+
+        <main class="main-content">
+          <header class="topbar">
+            <div class="history-buttons"><button class="round-button" aria-label="Retour" @click="selectView('home')">‹</button><button class="round-button muted" aria-label="Suivant" @click="showToast('Vous êtes déjà à jour')">›</button></div>
+            <label class="search-box">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m16 16 5 5" /></svg>
+              <input v-model="query" type="search" placeholder="Que souhaitez-vous écouter ?" aria-label="Rechercher de la musique" />
+              <kbd>⌘ K</kbd>
+            </label>
+            <button class="premium-link" @click="showToast('Sonora Plus arrive bientôt')">Passer à Plus <span>✦</span></button>
+            <button class="top-avatar" title="Votre profil" @click="showToast('Profil de Hibat Allah')">HA</button>
+          </header>
+
+          <div class="content-scroll">
+            <section v-if="view === 'home' && !query" class="welcome-row">
+              <div><p class="eyebrow">{{ currentDate }}</p><h1>{{ greeting }}, Hibat Allah<span>.</span></h1><p class="welcome-sub">Voici la bande-son parfaite pour votre journée.</p></div>
+              <div class="mood-switch"><button :class="{ chosen: mood === 'calme' }" @click="mood='calme'">☾ <span>Calme</span></button><button :class="{ chosen: mood === 'énergie' }" @click="mood='énergie'">✦ <span>Énergie</span></button><button :class="{ chosen: mood === 'focus' }" @click="mood='focus'">◉ <span>Focus</span></button></div>
+            </section>
+
+            <section v-if="view === 'home' && !query" class="hero-card">
+              <div class="hero-art art-sunset"><span class="hero-orbit orbit-one"></span><span class="hero-orbit orbit-two"></span><span class="hero-art-word">golden<br />hour</span><span class="hero-art-label">SONORA SELECTS · 2025</span></div>
+              <div class="hero-copy"><div class="hero-label"><span class="live-dot"></span SÉLECTION DU JOUR</div><h2>Un peu de lumière<br />dans vos écouteurs.</h2><p>Des sons doux et des rythmes légers pour accompagner le moment présent.</p><div class="hero-meta"><span>12 titres</span><i></i><span>45 min</span><i></i><span>Mis à jour aujourd’hui</span></div><button class="play-cta" @click="playTrack(featuredTrack)"><span class="play-triangle">▶</span> Écouter maintenant</button></div>
+              <div class="hero-decoration">S<br />O<br />N<br />O<br />R<br />A</div>
+            </section>
+
+            <section v-if="view === 'home' && !query" class="quick-grid">
+              <button class="quick-tile" v-for="track in quickPicks" :key="track.id" @click="playTrack(track)"><span class="quick-cover" :class="track.art"><span class="cover-glyph">{{ track.glyph }}</span></span><span class="quick-title">{{ track.title }}</span><span class="quick-play">▶</span></button>
+            </section>
+
+            <section class="music-section">
+              <div class="section-heading"><div><p class="eyebrow">{{ sectionEyebrow }}</p><h2>{{ sectionTitle }}</h2></div><button v-if="view === 'home' && !query" class="text-link" @click="selectView('explore')">Tout voir <span>→</span></button></div>
+              <div v-if="visibleTracks.length" class="track-grid">
+                <article v-for="(track, index) in visibleTracks" :key="track.id" class="track-card" :class="{ 'currently-playing': currentTrack.id === track.id && isPlaying }">
+                  <div class="cover-wrap" :class="track.art" @click="playTrack(track)"><span class="cover-glyph">{{ track.glyph }}</span><span class="cover-label">{{ track.coverLabel }}</span><button class="card-play" :aria-label="'Écouter ' + track.title">{{ currentTrack.id === track.id && isPlaying ? 'Ⅱ' : '▶' }}</button><button class="heart-button" :class="{ liked: track.liked }" :aria-label="track.liked ? 'Retirer des favoris' : 'Ajouter aux favoris'" @click.stop="toggleLike(track)">{{ track.liked ? '♥' : '♡' }}</button></div>
+                  <div class="track-card-info"><div class="track-title-line"><h3>{{ track.title }}</h3><span class="explicit" v-if="track.explicit">E</span></div><p>{{ track.artist }}</p><div class="card-tag-row"><span>{{ track.genre }}</span><span>{{ track.durationLabel }}</span></div></div>
+                </article>
+              </div>
+              <div v-else class="empty-state"><span>⌕</span><h3>Aucun morceau trouvé</h3><p>Essayez un autre titre ou artiste.</p><button @click="query=''; selectView('explore')">Explorer le catalogue</button></div>
+            </section>
+
+            <section v-if="view === 'home' && !query" class="editorial-banner"><div><p class="eyebrow">À ÉCOUTER EN CE MOMENT</p><h2>Les nouveautés<br />qui vous ressemblent.</h2><p>Un mélange de découvertes et de morceaux à garder près de soi.</p><button class="outline-cta" @click="selectView('explore')">Explorer les nouveautés <span>→</span></button></div><div class="editorial-shapes"><span class="shape shape-a"></span><span class="shape shape-b"></span><span class="shape shape-c"></span><span class="shape-note">♪</span></div></section>
+
+            <footer class="page-footer"><span>SONORA © 2025</span><span>Une expérience musicale pour vos journées.</span><span>À l’écoute, partout.</span></footer>
+          </div>
+        </main>
+
+        <footer class="player-bar">
+          <div class="now-playing">
+            <div class="mini-cover" :class="currentTrack.art"><span class="cover-glyph">{{ currentTrack.glyph }}</span></div>
+            <div class="now-track"><b>{{ currentTrack.title }}</b><span>{{ currentTrack.artist }}</span></div>
+            <button class="player-heart" :class="{ liked: currentTrack.liked }" aria-label="Ajouter aux favoris" @click="toggleLike(currentTrack)">{{ currentTrack.liked ? '♥' : '♡' }}</button>
+          </div>
+          <div class="player-center">
+            <div class="transport-controls"><button class="control-button shuffle" :class="{ active: shuffle }" aria-label="Lecture aléatoire" @click="shuffle=!shuffle">⤨</button><button class="control-button" aria-label="Précédent" @click="previousTrack">◀|</button><button class="main-play" :aria-label="isPlaying ? 'Pause' : 'Lecture'" @click="togglePlay">{{ isPlaying ? 'Ⅱ' : '▶' }}</button><button class="control-button" aria-label="Suivant" @click="nextTrack">|▶</button><button class="control-button repeat" :class="{ active: repeat }" aria-label="Répéter" @click="repeat=!repeat">⟳</button></div>
+            <div class="timeline"><span>{{ formatTime(currentTime) }}</span><input v-model.number="progress" :style="{ '--value': progress + '%' }" class="progress-slider" type="range" min="0" max="100" aria-label="Position dans le morceau" @input="seek" /><span>{{ formatTime(duration || currentTrack.seconds) }}</span></div>
+          </div>
+          <div class="player-extra"><button class="control-button queue-button" title="File d’attente" @click="showToast('Votre file d’attente est prête')">☷</button><button class="control-button device-button" title="Appareils disponibles" @click="showToast('Lecture sur cet appareil')">▣</button><span class="volume-icon">◖</span><input v-model.number="volume" :style="{ '--value': volume + '%' }" class="volume-slider" type="range" min="0" max="100" aria-label="Volume" @input="changeVolume" /><button class="expand-button" aria-label="Plein écran" @click="showToast('Mode plein écran bientôt disponible')">⤢</button></div>
+          <audio ref="audioEl" :src="currentTrack.audio" @timeupdate="syncTime" @loadedmetadata="syncDuration" @ended="handleEnded" @play="isPlaying=true" @pause="isPlaying=false"></audio>
+        </footer>
+        <transition name="toast"><div v-if="toast" class="toast-message">{{ toast }}</div></transition>
+      </div>
+    </div>
+  </body>
+</html>
